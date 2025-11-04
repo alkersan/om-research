@@ -114,15 +114,15 @@ class MainActivity : AppCompatActivity() {
 
     suspend fun rotate(
         timeMillis: Int = 500,
-        yaw: Int? = null,
-        pitch: Int? = null,
-        roll: Int? = null,
+        yaw: Float? = null,
+        pitch: Float? = null,
+        roll: Float? = null,
     ): Unit = suspendCoroutine { cont ->
         val rotation = Rotation.Builder()
             .mode(RotationMode.ABSOLUTE_ANGLE)
-            .yaw(yaw?.toFloat() ?: Rotation.NO_ROTATION)
-            .pitch(pitch?.toFloat() ?: Rotation.NO_ROTATION)
-            .roll(roll?.toFloat() ?: Rotation.NO_ROTATION)
+            .yaw(yaw ?: Rotation.NO_ROTATION)
+            .pitch(pitch ?: Rotation.NO_ROTATION)
+            .roll(roll ?: Rotation.NO_ROTATION)
             .time(timeMillis / 1000.0)
             .build()
 
@@ -150,14 +150,13 @@ class MainActivity : AppCompatActivity() {
             }
             connect(device)
             ready.await()
-            rotate(1000, 0, 0)
-            delay(2000)
 
-            var yaw = 45
+            delay(7000)
+            var yaw = 45.0f
             while (true) {
-                rotate(1500, yaw = yaw, pitch = 0)
+                rotate(1500, yaw = yaw, pitch = 0f)
                 yaw = -yaw
-                delay(3000)
+                delay(10000)
             }
         }
     }

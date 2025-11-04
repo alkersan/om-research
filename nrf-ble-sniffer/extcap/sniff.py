@@ -4,12 +4,13 @@ from SnifferAPI import Sniffer, Devices, Packet
 
 OM2_FOUND = threading.Event()
 OM2_NAME = "OsmoM198DFAG00300HR"
+OM2_ADDR = [0x78, 0x04, 0x73, 0xC6, 0x41, 0x5F, 0]
 OM2_DEVICE: Devices.Device | None = None
 
 def on_device(notification):
     device: Devices.Device = notification.msg
-    if device.name == f'"{OM2_NAME}"':
-        print(f"OM2 found: {device}")
+    if device.address == OM2_ADDR:
+        print(f"OM2 found")
         OM2_FOUND.set()
         global OM2_DEVICE
         OM2_DEVICE = device
@@ -17,9 +18,13 @@ def on_device(notification):
 def on_packet(notification):
     packet: Packet.Packet = notification.msg["packet"]
     if not packet.crcOK:
+        print("bad", ' '.join(f'{b:02X}' for b in packet.payload))
         return
-    hex = ' '.join(f'{b:02X}' for b in packet.blePacket.payload)
-    print(hex)
+
+    payload = ' '.join(f'{b:02X}' for b in packet.blePacket.payload)
+    direction = "<-" if not packet.direction else "->"
+    if packet.direction:
+        print(f"{direction} {payload}")
 
 def main():
     sniffer = Sniffer.Sniffer(portnum="/dev/ttyACM0", baudrate=1000000)
@@ -36,8 +41,10 @@ def main():
     sniffer.follow(OM2_DEVICE)
     sniffer.subscribe("NEW_BLE_PACKET", on_packet)
 
-    input("Press Enter to continue...")
-    sniffer.doExit()
+    try:
+        input("Press Enter to exit...\n")
+    finally:
+        sniffer.doExit()
 
 if __name__ == '__main__':
     main()
