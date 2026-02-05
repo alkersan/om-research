@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Osmo Mobile BLE Prototype</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACLUlEQVR42p1TXUhTYRh+3m9nx5Opo4n7iaSgLsTLnZ2xRjHCOxlR4IIg6CYKAjHoIujm1GV0kWF01U0kSacSkjINa95IidZilEiIBIF/sWltNRX3vV20M7emED5XH9/7Pg/vz/MC24GZYFkO7AjM9M+b/
+        pdKME0BAP6BgVrP4HhbKWJZDiQSSoV4OeLx+N9yidBkJep8Q5Mjvhfj2X1Dn9xVyWWt2WoCgGxpO9HonUwUpq0315TGpq7C4kIa4HqQyEGIKXI4Hq/Ofrm/fOHUDzALEElhk3Vdb9+TX/q2ur/ZXG8+cE8uZ1YArmfmi5DyFrPMQha6tYMtX73PxmIgkjBZEADouh5QVfU9Fwq9aw0NV5IjI3Oe/
+        tHDpGodi7HwZbtc79MxD7l2dwtVO80rGX3+eOQDAMAwjD7DMD6XeiwOEgAOdXbWtJqWikRCsf/8LyemfM/f9QGAUrGBIqKjo+J73FTWfW6a6elaA3oAbIpKIiaiTZLdgpSyL5/PX0qlUkt2smEYNzeA/uTExNvmh6/2bnj9N8ipnEEuG5hrDyXJHmIgEIg5nc4HzOySUg4T0ZiUcl4IcVcoym9tdvbodO/
+        wOaHWnOdMumPh5JHB0hDLNuESQpwFEAfQCqCOmXOaprnXfmVvzzz5aO56dEeZu9qZhskC10lWG6kM4XDYHQwGfxqG8ToSidRvZaQqK0ejUaVcLBQKHdN1vba0ne2svOVdVB4R7egwi9VsS/4DDKvWinEuTTUAAAAASUVORK5CYII="/>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <h1>Osmo Mobile BLE Prototype</h1>
+          <p class="subtle">
+            Web Bluetooth API demo for rotating the gimbal. Works on Chromium browsers over HTTPS or localhost.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <a class="source-link" href="https://github.com/alkersan/om-research" target="_blank" rel="noopener">Source</a>
+          <div class="status">
+            <span id="statusDot" class="dot"></span>
+            <span id="statusText">Disconnected</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="disclaimer">
+        <strong>Experimental.</strong>Use at your own risk. I can't guarantee it
+        won't damage or brick your device, although it has worked on OM2, OM3, OM4 without troubles.
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Connection</h2>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Device name contains (optional)</span>
+            <input id="nameFilter" type="text" placeholder="OM4" />
+          </label>
+          <div class="buttons">
+            <button id="connectBtn" class="primary">Connect</button>
+            <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Rotate</h2>
+        </div>
+        <div class="grid rotate-grid">
+          <label class="field">
+            <span>Yaw (deg) <span class="info" data-tip="Displayed in degrees. Will be sent as value * 10 (0.1° units).">?</span></span>
+            <input id="yaw" type="number" value="0.0" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Pitch (deg) <span class="info" data-tip="Displayed in degrees. Will be sent as value * 10 (0.1° units).">?</span></span>
+            <input id="pitch" type="number" value="0.0" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Roll (deg) <span class="info" data-tip="Worked only in SPEED mode">?</span></span>
+            <input id="roll" type="number" value="0.0" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Time (s) <span class="info" data-tip="Displayed in seconds. Will be sent as value * 10 (0.1 s units), range 0-25.5s.">?</span></span>
+            <input id="time" type="number" value="1.0" min="0" max="25.5" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Mode <span class="info" data-tip="Speed = 0x80, Relative = 0x04, Absolute = 0x05.">?</span></span>
+            <select id="mode">
+                <option value="relative" selected>Relative</option>
+                <option value="absolute">Absolute</option>
+                <option value="speed">Speed</option>
+            </select>
+          </label>
+        </div>
+        <div class="buttons rotate-actions">
+          <button id="rotateBtn" class="primary" disabled>Send Rotate</button>
+          <div class="action-with-tip">
+            <button id="sweepBtn" class="secondary" disabled>Start Sweep</button>
+            <span
+              class="info"
+              data-tip="Alternates yaw between +45° and -45° in relative mode every 1.5s."
+              aria-label="Sweep explanation"
+              tabindex="0"
+            >?</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Logs</h2>
+          <button id="clearLogBtn" class="ghost">Clear</button>
+        </div>
+        <pre id="log" class="log"></pre>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -35,6 +35,13 @@ Tested on: OM2, OM3, OM4.
 > In Linux/BlueZ, make sure that device is not currently connected to your system,
 > or Bleak will not be able to connect
 
+## Web Bluetooth Prototype
+
+Another PoC is a web UI built on the Web Bluetooth API in [web-bluetooth](./web-bluetooth).
+It provides a minimal in-browser controller for rotating the gimbal.
+
+You can try it at [om-research.flab.dev](https://om-research.flab.dev)
+
 ## Misc links:
 - [Mobile SDK Android](https://github.com/dji-sdk/Mobile-SDK-Android)
 - [SDK API Reference](https://developer.dji.com/api-reference/android-api/Components/SDKManager/DJISDKManager.html)
